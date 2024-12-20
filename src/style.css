@@ -1,0 +1,9 @@
+#app {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+}
+
+#game-canvas {
+  border: 1px solid gray
+}
