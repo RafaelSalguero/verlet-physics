@@ -1,4 +1,5 @@
 import { drawCircle, drawPoint } from "./draw";
+import { Box2, collideCircleContainer } from "./linear/box2";
 import { Circle } from "./linear/circle";
 import { collideCircleCircle, collideCircleCircleCheck, collideCirclePoint } from "./linear/collision";
 import { add } from "./linear/vector2";
@@ -77,6 +78,11 @@ export function gameLoop() {
             drawCircle(ctx, circle);
         }
 
+        const container: Box2 = { 
+            min: { x: 0, y: 0 },
+            max: { x: canvas.width, y: canvas.height }
+        }
+
         // circle circle collisions:
         for (let i = 0; i < circles.length; i++) {
             for (let j = i + 1; j < circles.length; j++) {
@@ -90,7 +96,13 @@ export function gameLoop() {
                     circle2.center = add (circle2.center, response.bOffset);
                 }
             }
+
+            // circle container collisions:
+            circles[i].center =  add(circles[i].center, collideCircleContainer(circles[i], container));
         }
+
+        
+
     
         requestAnimationFrame(iteration);
     }

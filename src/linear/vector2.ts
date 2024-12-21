@@ -31,3 +31,11 @@ export function normalize(v: Vector2): Vector2 {
     const len = length(v);
     return { x: v.x / len, y: v.y / len };
 }
+
+export function min (a: Vector2, b: Vector2): Vector2 {
+    return { x: Math.min(a.x, b.x), y: Math.min(a.y, b.y) };
+}
+
+export function max (a: Vector2, b: Vector2): Vector2 {
+    return { x: Math.max(a.x, b.x), y: Math.max(a.y, b.y) };
+}

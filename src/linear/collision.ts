@@ -26,7 +26,7 @@ export function lerp2(a: Vector2, b: Vector2, t: number): Vector2 {
     return add(scale(a, 1 - t), scale(b, t));
 }
 
-export function collideCircleCircle(a: Circle,  b: Circle): CircleCircleCollisionResponse {
+export function collideCircleCircle(a: Circle, b: Circle): CircleCircleCollisionResponse {
     // consider all circles of equal density
     const aMass = a.radius * a.radius;
     const bMass = b.radius * b.radius;
@@ -42,3 +42,4 @@ export function collideCircleCircle(a: Circle,  b: Circle): CircleCircleCollisio
         bOffset: scale(mtd, aMass / (aMass + bMass))
     }
 }
+
