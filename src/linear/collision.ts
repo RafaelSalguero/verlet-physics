@@ -17,9 +17,14 @@ export function collideCirclePoint(a:Circle, p:Vector2):boolean {
     return length(sub(a.center, p)) < a.radius;
 }
 
-interface CircleCircleCollisionResponse {
+export interface CircleCircleCollisionResponse {
     aOffset: Vector2;
     bOffset: Vector2;
+}
+
+export function applyCircleCircleCollision(a: Circle, b: Circle, response: CircleCircleCollisionResponse) {
+    a.center = add(a.center, response.aOffset);
+    b.center = add(b.center, response.bOffset);
 }
 
 export function lerp2(a: Vector2, b: Vector2, t: number): Vector2 {
