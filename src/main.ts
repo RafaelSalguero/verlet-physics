@@ -2,7 +2,7 @@ import { drawCircle, drawLine, drawPoint } from "./draw";
 import { Box2, collideCircleContainer } from "./linear/box2";
 import { Circle, Particle, verletIntegrate } from "./linear/circle";
 import { applyCircleCircleCollision, collideCircleCircle, collideCircleCircleCheck, collideCirclePoint } from "./linear/collision";
-import { add, length, sub } from "./linear/vector2";
+import { add, length, sub, Vector2 } from "./linear/vector2";
 import { range } from "lodash";
 import "./style.css";
 import { solveSpring, Spring } from "./linear/spring";
@@ -24,38 +24,61 @@ export function gameLoop() {
     let offset = { x: 0, y: 0 };
     let shiftPressed = false;
     let paused = false;
-
+    let mouseDownPos: Vector2 = { x: 0, y: 0 };
+    let mousePos: Vector2 = { x: 0, y: 0 };
 
     //select a circle on mouse down
-    addEventListener("mousedown", e => {
+    canvas.addEventListener("mousedown", e => {
         const mouse = { x: e.offsetX, y: e.offsetY };
+        mouseDownPos = mouse;
+        const lastSelectedCircle = selectedCircle;
+        selectedCircle = null;
+
+        dragging = true; 
         for (const circle of circles) {
             if (collideCirclePoint(circle, mouse)) {
-                if (shiftPressed && selectedCircle) {
+                // right click to delete
+                if (e.button === 2) {
+                    circles.splice(circles.indexOf(circle), 1);
+                    springs = springs.filter(spring => spring.a !== circle && spring.b !== circle);
+                    dragging = false;
+                    return;
+                } 
+                if (shiftPressed && lastSelectedCircle) { 
                     if (springs.some(spring => spring.a === selectedCircle && spring.b === circle)) {
                         springs = springs.filter(spring => spring.a !== selectedCircle || spring.b !== circle);
                     } else {
-                        springs.push({ a: selectedCircle, b: circle, distance: length(sub(selectedCircle.center, circle.center)) });
+                        springs.push({ a: lastSelectedCircle, b: circle, distance: length(sub(lastSelectedCircle.center, circle.center)) });
                     }
                 }
                 selectedCircle = circle;
-                dragging = true;
                 offset = { x: mouse.x - circle.center.x, y: mouse.y - circle.center.y };
             }
+        }
+
+        if(selectedCircle == null) {
+            circles.push({
+                center: mouse,
+                radius: 10,
+                oldCenter: mouse
+            })
         }
     });
 
     //deselect a circle on mouse up
-    addEventListener("mouseup", e => {
+    canvas.addEventListener("mouseup", e => {
         dragging = false;
     });
 
     //move the circle on mouse move
-    addEventListener("mousemove", e => {
+    canvas.addEventListener("mousemove", e => {
+        mousePos = { x: e.offsetX, y: e.offsetY };
         if (dragging && selectedCircle) {
             selectedCircle.oldCenter = selectedCircle.center;
             selectedCircle.center = { x: e.offsetX - offset.x, y: e.offsetY - offset.y };
-         }
+        } else if (dragging) {
+            circles[circles.length - 1].radius = Math.max(length(sub(mouseDownPos, { x: e.offsetX, y: e.offsetY })) , 10) ;
+        }
     });
 
     addEventListener("keydown", e => {
@@ -64,6 +87,11 @@ export function gameLoop() {
         }
         if (e.key === "Shift") {
             shiftPressed = true;
+        }
+        // R to delete all:
+        if (e.key === "r") {
+            circles.length = 0;
+            springs.length = 0;
         }
     });
 
@@ -81,15 +109,19 @@ export function gameLoop() {
 
 
         // draw a circle in the middle of the screen:
-        ctx.fillStyle = "#8c3bfe60";
+        
 
         // set stroke width and color;
         ctx.lineWidth = 5;
         ctx.strokeStyle = "#4800ff";
 
         for (const circle of circles) {
+            ctx.fillStyle = "#8c3bfe60";
             if (selectedCircle === circle) {
                 ctx.strokeStyle = "#ff0000";
+            } else if ( collideCirclePoint(circle, mousePos)) {
+                ctx.fillStyle = "#00604060";
+                ctx.strokeStyle = "#006040";
             } else {
                 ctx.strokeStyle = "#4800ff";
             }
