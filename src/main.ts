@@ -1,30 +1,20 @@
 import { drawCircle, drawPoint } from "./draw";
 import { Box2, collideCircleContainer } from "./linear/box2";
-import { Circle } from "./linear/circle";
+import { Circle, Particle, verletIntegrate } from "./linear/circle";
 import { collideCircleCircle, collideCircleCircleCheck, collideCirclePoint } from "./linear/collision";
 import { add } from "./linear/vector2";
-
+import { range } from "lodash";
 import "./style.css";
 
 
 const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
 export function gameLoop() {
-    const circles: Circle[] = [
-        {
-            center: { x: 100, y: 100 },
-            radius: 50
-        }, {
-            center: { x: 200, y: 200 },
-            radius: 100
-        }, {
-            center: { x: 300, y: 300 },
-            radius: 200
-        }, {
-            center: { x: 400, y: 400 },
-            radius: 10
-        }
-    ]
+    const circles: Particle[] = (range(10).map<Circle>(x => ({
+        center: { x: Math.random() * canvas.width, y: Math.random() * canvas.height },
+        radius: 10 + Math.random() * 100
+
+    }))).map<Particle>(circle => ({ ...circle, oldCenter: circle.center }));
 
     let selectedCircle: Circle | null = null;
     let dragging = false;
@@ -85,6 +75,8 @@ export function gameLoop() {
 
         // circle circle collisions:
         for (let i = 0; i < circles.length; i++) {
+            verletIntegrate(circles[i], { x: 0, y: 1 }, 1);
+
             for (let j = i + 1; j < circles.length; j++) {
                 const circle1 = circles[i];
                 const circle2 = circles[j];
