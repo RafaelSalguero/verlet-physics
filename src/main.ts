@@ -16,9 +16,11 @@ export function gameLoop() {
 
     }))).map<Particle>(circle => ({ ...circle, oldCenter: circle.center }));
 
-    let selectedCircle: Circle | null = null;
+    let selectedCircle: Particle | null = null;
     let dragging = false;
     let offset = { x: 0, y: 0 };
+
+    let paused = false;
 
     //select a circle on mouse down
     addEventListener("mousedown", e => {
@@ -42,6 +44,15 @@ export function gameLoop() {
     addEventListener("mousemove", e => {
         if (dragging && selectedCircle) {
             selectedCircle.center = { x: e.offsetX - offset.x, y: e.offsetY - offset.y };
+            if(paused) {
+                selectedCircle.oldCenter = selectedCircle.center;
+            }
+        }
+    });
+
+    addEventListener("keydown", e => {
+        if (e.key === " ") {
+            paused = !paused;
         }
     });
 
@@ -74,6 +85,7 @@ export function gameLoop() {
         }
 
         // circle circle collisions:
+        if(!paused) {
         for (let i = 0; i < circles.length; i++) {
             verletIntegrate(circles[i], { x: 0, y: 1 }, 1);
 
@@ -92,7 +104,7 @@ export function gameLoop() {
             // circle container collisions:
             circles[i].center =  add(circles[i].center, collideCircleContainer(circles[i], container));
         }
-
+    }
         
 
     
