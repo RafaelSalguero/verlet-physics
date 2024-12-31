@@ -33,7 +33,7 @@ export function dragLine(line: Line, t: number, p: Vector2): Line {
 
     // Translate the line by the perpendicular component, depending on how far we are from the center
     const fromCenterDistance = (t - 0.5) * 2;
-    const translateRotateRatio = 1 - fromCenterDistance * fromCenterDistance;
+    const translateRotateRatio = 1 - fromCenterDistance * fromCenterDistance; // this square makes everything work for some reason, I don't know why
     a = add(a, scale(dq, translateRotateRatio));
     b = add(b, scale(dq, translateRotateRatio));
 
