@@ -5,6 +5,32 @@ export interface Line {
     b: Vector2;
 }
 
+
+export function dragLine2(line: Line, t: number, p: Vector2): Line {
+    let { a, b } = line;
+    // o is the original point at t
+    const o = add(a, scale(sub(b, a), t));
+
+    // delta is the difference between the original point and the new point
+    const delta = sub(p, o);
+
+    const originalLength = length(sub(b, a));
+    // Change the line, but now the length is not maintained
+    a = add(a, scale(delta, 1 - t));
+    b = add(b, scale(delta, t));
+
+    // Now we need to maintain the length
+    const ab = sub(b, a);
+    const newLength = length(ab);
+
+    // Correct the lenght, with center at t
+    const lenCorrection = scale(normalize(ab), (newLength - originalLength));
+    a = add(a, scale(lenCorrection, t));
+    b = sub(b, scale(lenCorrection, 1 - t));
+
+    return { a, b };
+}
+
 /**
  * "Grabs" a line segment at a given t parameter where 0 is at 1 and 1 is at b
  * and moves that point to p while maintaining the length of the line segment.
