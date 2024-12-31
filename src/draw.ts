@@ -11,7 +11,7 @@ export function drawCircle(ctx: CanvasRenderingContext2D, c: Circle, strokeStyle
     ctx.stroke();
 }
 
-export function drawLine(ctx: CanvasRenderingContext2D, a: Vector2, b: Vector2, strokeStyle: string = "#ff55", lineWidth: number = 2) {
+export function drawLine(ctx: CanvasRenderingContext2D, a: Vector2, b: Vector2, strokeStyle: string = "#ff5500", lineWidth: number = 2) {
     ctx.lineWidth = lineWidth;
     ctx.strokeStyle = strokeStyle;
     ctx.beginPath();

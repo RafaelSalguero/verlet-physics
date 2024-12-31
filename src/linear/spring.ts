@@ -8,14 +8,14 @@ export interface Spring {
 }
 
 /** Ensure that the distance between a and b is equal to the spring distance: */
-export function solveSpring( s: Spring): CircleCircleCollisionResponse {
-    const { a, b} = s;
+export function solveSpring(s: Spring): CircleCircleCollisionResponse {
+    const { a, b } = s;
     const aMass = a.radius * a.radius;
     const bMass = b.radius * b.radius;
 
     const ab = sub(b.center, a.center);
     const d = length(ab);
-    
+
     const delta = d - s.distance;
     const totalOffset = scale(ab, delta / d);
 
@@ -23,7 +23,10 @@ export function solveSpring( s: Spring): CircleCircleCollisionResponse {
     const bOffset = scale(totalOffset, - aMass / (aMass + bMass));
 
     return {
-        aOffset,
-        bOffset
+        a: {
+            offset: aOffset,
+        }, b: {
+            offset: bOffset
+        }
     }
 }

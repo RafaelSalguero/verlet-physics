@@ -6,7 +6,7 @@ export interface Box2 {
 }
 
 /** Shink a box from all sides a given amount */
-export function shrinkBox2(box: Box2, amount: number): Box2 { 
+export function shrinkBox2(box: Box2, amount: number): Box2 {
     return {
         min: add(box.min, { x: amount, y: amount }),
         max: sub(box.max, { x: amount, y: amount })

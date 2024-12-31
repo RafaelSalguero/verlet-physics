@@ -1,5 +1,5 @@
-import { Circle } from "./circle";
-import { sub, length, add, scale, normalize, Vector2 } from "./vector2";
+import { Circle } from "../circle";
+import { sub, length, add, scale, normalize, Vector2 } from "../vector2";
 
 /**
  * Returns null on no collision or the point of collision between the circles a and b.
@@ -13,23 +13,25 @@ export function collideCircleCircleCheck(a: Circle, b: Circle): boolean {
 }
 
 /** True if a circle contains a point */
-export function collideCirclePoint(a:Circle, p:Vector2):boolean {
+export function collideCirclePoint(a: Circle, p: Vector2): boolean {
     return length(sub(a.center, p)) < a.radius;
 }
 
+export interface CircleCollisionResponse {
+    offset: Vector2;
+}
+
 export interface CircleCircleCollisionResponse {
-    aOffset: Vector2;
-    bOffset: Vector2;
+    a: CircleCollisionResponse;
+    b: CircleCollisionResponse;
 }
 
 export function applyCircleCircleCollision(a: Circle, b: Circle, response: CircleCircleCollisionResponse) {
-    a.center = add(a.center, response.aOffset);
-    b.center = add(b.center, response.bOffset);
+    a.center = add(a.center, response.a.offset);
+    b.center = add(b.center, response.b.offset);
 }
 
-export function lerp2(a: Vector2, b: Vector2, t: number): Vector2 {
-    return add(scale(a, 1 - t), scale(b, t));
-}
+
 
 export function collideCircleCircle(a: Circle, b: Circle): CircleCircleCollisionResponse {
     // consider all circles of equal density
@@ -43,8 +45,12 @@ export function collideCircleCircle(a: Circle, b: Circle): CircleCircleCollision
     const mtd = scale(n, (a.radius + b.radius) - d);
 
     return {
-        aOffset: scale(mtd, -bMass / (aMass + bMass)),
-        bOffset: scale(mtd, aMass / (aMass + bMass))
+        a: {
+            offset: scale(mtd, -bMass / (aMass + bMass)),
+        },
+        b: {
+            offset: scale(mtd, aMass / (aMass + bMass))
+        }
     }
 }
 

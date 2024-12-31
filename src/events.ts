@@ -8,12 +8,7 @@ import "./style.css";
 import { solveSpring, Spring } from "./linear/spring";
 import { nearestPointInLine } from "./linear/circle-line";
 import { initLineTestWorld, initRandomWorld, World } from "./world";
-import { dragLine } from "./linear/line";
 
-interface SelectedLine {
-  spring: Spring;
-  t: number;
-}
 
 const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d")!;
@@ -23,7 +18,6 @@ export function gameLoop() {
     max: { x: canvas.width, y: canvas.height }
   });
 
-  let selectedLine: SelectedLine | null = null;
   let selectedCircle: Particle | null = null;
   let dragging = false;
   let offset = { x: 0, y: 0 };
@@ -38,7 +32,6 @@ export function gameLoop() {
     mouseDownPos = mouse;
     const lastSelectedCircle = selectedCircle;
     selectedCircle = null;
-    selectedLine = null;
 
     dragging = true;
     for (const circle of circles) {
@@ -63,19 +56,6 @@ export function gameLoop() {
     }
 
     if (selectedCircle == null) {
-      for (const spring of springs) {
-        const nearestPointPT = nearestPointInLine(spring.a.center, spring.b.center, mouse);
-        const nearestPoint = nearestPointPT.p;
-
-        const len = length(sub(nearestPoint, mouse));
-        if (len < 10) {
-          selectedLine = { spring, t: nearestPointPT.t };
-          offset = { x: mouse.x - nearestPoint.x, y: mouse.y - nearestPoint.y };
-        }
-      }
-    }
-
-    if (selectedCircle == null && selectedLine == null) {
       circles.push({
         center: mouse,
         radius: 10,
@@ -92,8 +72,12 @@ export function gameLoop() {
   //move the circle on mouse move
   canvas.addEventListener("mousemove", e => {
     mousePos = { x: e.offsetX, y: e.offsetY };
-
-
+    if (dragging && selectedCircle) {
+      selectedCircle.oldCenter = selectedCircle.center;
+      selectedCircle.center = { x: e.offsetX - offset.x, y: e.offsetY - offset.y };
+    } else if (dragging) {
+      circles[circles.length - 1].radius = Math.max(length(sub(mouseDownPos, { x: e.offsetX, y: e.offsetY })), 10);
+    }
   });
 
   addEventListener("keydown", e => {
@@ -142,7 +126,7 @@ export function gameLoop() {
     for (const spring of springs) {
       drawLine(ctx, spring.a.center, spring.b.center);
 
-      const nearestPoint = nearestPointInLine(spring.a.center, spring.b.center, mousePos).p;
+      const nearestPoint = nearestPointInLine(spring.a.center, spring.b.center, mousePos);
       const len = length(sub(nearestPoint, mousePos));
       if (len < 10) {
         drawPoint(ctx, nearestPoint, "#ff0000", "#ff0000");
@@ -175,39 +159,12 @@ export function gameLoop() {
     }
   }
 
-  function mouseMoveEvent() {
-    if (dragging && selectedCircle) {
-      if (paused) {
-        selectedCircle.oldCenter = selectedCircle.center;
-      }
-      selectedCircle.center = mousePos;
-    } else if (dragging && selectedLine) {
-
-      const newLine = dragLine({
-        a: selectedLine.spring.a.center,
-        b: selectedLine.spring.b.center,
-      }, selectedLine.t, mousePos);
-
-      if (paused) {
-        selectedLine.spring.a.oldCenter = selectedLine.spring.a.center;
-        selectedLine.spring.b.oldCenter = selectedLine.spring.b.center;
-      }
-
-      selectedLine.spring.a.center = newLine.a;
-      selectedLine.spring.b.center = newLine.b;
-    } else if (dragging) {
-      circles[circles.length - 1].radius = Math.max(length(sub(mouseDownPos, mousePos)), 10);
-    }
-  }
-
   function iteration() {
     // circle circle collisions:
     if (!paused) {
       simulate();
     }
-    mouseMoveEvent();
     render();
-
 
     requestAnimationFrame(iteration);
   }
