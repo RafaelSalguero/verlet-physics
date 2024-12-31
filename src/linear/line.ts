@@ -58,14 +58,14 @@ export function dragLine(line: Line, t: number, p: Vector2): Line {
     b = add(b, dp);
 
     // Translate the line by the perpendicular component, depending on how far we are from the center
-    const fromCenterDistance = t - 0.5;
-    const translateRotateRatio = 1 - Math.abs(fromCenterDistance) * 2
+    const fromCenterDistance = (t - 0.5) * 2;
+    const translateRotateRatio = 1 - fromCenterDistance * fromCenterDistance;
     a = add(a, scale(dq, translateRotateRatio));
     b = add(b, scale(dq, translateRotateRatio));
 
     // Rotate the line by moving the points in opposite directions along the perpendicular component
-    b = add(b, scale(dq, fromCenterDistance * 2));
-    a = add(a, scale(dq, -fromCenterDistance * 2));
+    b = add(b, scale(dq, fromCenterDistance));
+    a = add(a, scale(dq, -fromCenterDistance));
 
     // Correct the lenght, with center at t
     const newLength = length(sub(b, a));
