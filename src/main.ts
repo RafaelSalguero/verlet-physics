@@ -149,7 +149,7 @@ export function gameLoop() {
         selectedCircle === circle ? "#ff0000" :
           collideCirclePoint(circle, mousePos) ? "#006040" : "#4800ff",
         collideCirclePoint(circle, mousePos) ? "#00604060" :
-          circle.fixed ? "#8c430060" :
+          circle.fixed ? "#104043a0" :
             "#8c3bfe60"
       );
     }

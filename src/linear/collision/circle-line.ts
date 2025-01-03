@@ -1,6 +1,6 @@
 import { Circle } from "../circle.ts";
 import { dragLine, Line } from "../line.ts";
-import { normalize, Vector2 } from "../vector2";
+import { normalize, Vector2, zero2 } from "../vector2";
 import { add, sub, dot, scale, length } from "../vector2";
 import { applyCircleCollision, CircleCircleCollisionResponse, CircleCollisionResponse } from "./circle-circle.ts";
 import { calcMassRatio } from "./util.ts";
@@ -62,8 +62,8 @@ export function circleLineCollision(circle: Circle, line: LineOfCircles): Circle
 
   return {
     line: {
-      a: { offset: sub(newLine.a, line.a.center) },
-      b: { offset: sub(newLine.b, line.b.center) }
+      a: { offset: line.a.fixed ? zero2 : sub(newLine.a, line.a.center) },
+      b: { offset: line.b.fixed ? zero2 : sub(newLine.b, line.b.center) }
     },
     circle: { offset: circleOffset }
   }
