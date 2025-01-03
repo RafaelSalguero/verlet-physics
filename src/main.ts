@@ -6,9 +6,10 @@ import { add, length, sub, Vector2 } from "./linear/vector2";
 import { range } from "lodash";
 import "./style.css";
 import { solveSpring, Spring } from "./linear/spring";
-import { nearestPointInLine } from "./linear/circle-line";
+import { nearestPointInLine } from "./linear/collision/circle-line";
 import { initLineTestWorld, initRandomWorld, World } from "./world";
 import { dragLine } from "./linear/line";
+import { applyCircleLineCollision, circleLineCollision } from "./linear/collision/circle-line";
 
 interface SelectedLine {
   spring: Spring;
@@ -140,7 +141,7 @@ export function gameLoop() {
     }
 
     for (const spring of springs) {
-      drawLine(ctx, spring.a.center, spring.b.center);
+      drawLine(ctx, spring.a.center, spring.b.center, "#8c3bfe60", 20);
 
       const nearestPoint = nearestPointInLine(spring.a.center, spring.b.center, mousePos).p;
       const len = length(sub(nearestPoint, mousePos));
@@ -159,6 +160,7 @@ export function gameLoop() {
         verletIntegrate(circles[i], { x: 0, y: 1 }, 0.7);
       }
 
+      // circle-circle collisions:
       for (let j = i + 1; j < circles.length; j++) {
         const circle1 = circles[i];
         const circle2 = circles[j];
@@ -170,6 +172,20 @@ export function gameLoop() {
         }
       }
 
+      // circle-line collisions:
+      for (const spring of springs) {
+        // do not collide with itself:
+        if (spring.a === circles[i] || spring.b === circles[i]) {
+          continue;
+        }
+
+        const response = circleLineCollision(circles[i], spring);
+
+        if (response) {
+          applyCircleLineCollision(circles[i], spring, response);
+        }
+      }
+
       // circle container collisions:
       circles[i].center = add(circles[i].center, collideCircleContainer(circles[i], container));
     }
@@ -177,9 +193,7 @@ export function gameLoop() {
 
   function mouseMoveEvent() {
     if (dragging && selectedCircle) {
-      if (paused) {
-        selectedCircle.oldCenter = selectedCircle.center;
-      }
+      selectedCircle.oldCenter = selectedCircle.center;
       selectedCircle.center = mousePos;
     } else if (dragging && selectedLine) {
 
