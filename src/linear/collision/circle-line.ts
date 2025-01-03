@@ -3,6 +3,7 @@ import { dragLine, Line } from "../line.ts";
 import { normalize, Vector2 } from "../vector2";
 import { add, sub, dot, scale, length } from "../vector2";
 import { applyCircleCollision, CircleCircleCollisionResponse, CircleCollisionResponse } from "./circle-circle.ts";
+import { calcMassRatio } from "./util.ts";
 
 /** Return the nearest point on the line segment ab to the point p
  */
@@ -32,8 +33,10 @@ export function applyCircleLineCollision(circle: Circle, line: LineOfCircles, re
 
 export function circleLineCollision(circle: Circle, line: LineOfCircles): CircleLineCollisionResponse | null {
   // determines the proportion of movement to apply to the circle and the line:
-  const circleMass = circle.radius * circle.radius;
-  const lineMass = line.a.radius * line.a.radius + line.b.radius * line.b.radius;
+  const circleMass = circle.fixed ? Number.POSITIVE_INFINITY : circle.radius * circle.radius;
+  const lineMass = (
+    line.a.fixed && line.b.fixed
+  ) ? Number.POSITIVE_INFINITY : (line.a.radius * line.a.radius + line.b.radius * line.b.radius);
 
   const { p, t } = nearestPointInLine(line.a.center, line.b.center, circle.center);
   const lineWidth = 10; // we consider that all lines have the same width
@@ -49,8 +52,8 @@ export function circleLineCollision(circle: Circle, line: LineOfCircles): Circle
   const pv = scale(n, circle.radius + lineWidth - distance);
 
   // the line and circles will move inversely to their mass:
-  const lineOffset = scale(pv, -circleMass / (circleMass + lineMass));
-  const circleOffset = scale(pv, lineMass / (circleMass + lineMass));
+  const lineOffset = scale(pv, -calcMassRatio(lineMass, circleMass));
+  const circleOffset = scale(pv, calcMassRatio(circleMass, lineMass));
 
   const newLine = dragLine({
     a: line.a.center,

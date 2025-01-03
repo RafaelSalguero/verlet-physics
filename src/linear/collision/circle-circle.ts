@@ -1,5 +1,6 @@
 import { Circle } from "../circle";
 import { sub, length, add, scale, normalize, Vector2 } from "../vector2";
+import { calcMassRatio } from "./util";
 
 /**
  * Returns null on no collision or the point of collision between the circles a and b.
@@ -39,8 +40,8 @@ export function applyCircleCircleCollision(a: Circle, b: Circle, response: Circl
 
 export function collideCircleCircle(a: Circle, b: Circle): CircleCircleCollisionResponse {
   // consider all circles of equal density
-  const aMass = a.radius * a.radius;
-  const bMass = b.radius * b.radius;
+  const aMass = a.fixed ? Number.POSITIVE_INFINITY : a.radius * a.radius;
+  const bMass = b.fixed ? Number.POSITIVE_INFINITY : b.radius * b.radius;
 
   const ab = sub(b.center, a.center);
   const d = length(ab);
@@ -50,10 +51,10 @@ export function collideCircleCircle(a: Circle, b: Circle): CircleCircleCollision
 
   return {
     a: {
-      offset: scale(mtd, -bMass / (aMass + bMass)),
+      offset: scale(mtd, -calcMassRatio(aMass, bMass)),
     },
     b: {
-      offset: scale(mtd, aMass / (aMass + bMass))
+      offset: scale(mtd, calcMassRatio(bMass, aMass)),
     }
   }
 }

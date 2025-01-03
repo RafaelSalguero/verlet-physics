@@ -109,6 +109,10 @@ export function gameLoop() {
       circles.length = 0;
       springs.length = 0;
     }
+
+    if (e.key === "f" && selectedCircle) {
+      selectedCircle.fixed = !selectedCircle.fixed;
+    }
   });
 
   addEventListener("keyup", e => {
@@ -136,7 +140,9 @@ export function gameLoop() {
       drawCircle(ctx, circle,
         selectedCircle === circle ? "#ff0000" :
           collideCirclePoint(circle, mousePos) ? "#006040" : "#4800ff",
-        collideCirclePoint(circle, mousePos) ? "#00604060" : "#8c3bfe60"
+        collideCirclePoint(circle, mousePos) ? "#00604060" :
+          circle.fixed ? "#8c430060" :
+            "#8c3bfe60"
       );
     }
 
@@ -156,7 +162,7 @@ export function gameLoop() {
       applyCircleCircleCollision(s.a, s.b, solveSpring(s));
     }
     for (let i = 0; i < circles.length; i++) {
-      if (selectedCircle !== circles[i] || !dragging) {
+      if ((selectedCircle !== circles[i] || !dragging) && !circles[i].fixed) {
         verletIntegrate(circles[i], { x: 0, y: 1 }, 0.7);
       }
 
@@ -188,6 +194,7 @@ export function gameLoop() {
 
       // circle container collisions:
       circles[i].center = add(circles[i].center, collideCircleContainer(circles[i], container));
+
     }
   }
 
