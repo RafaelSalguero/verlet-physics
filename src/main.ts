@@ -17,8 +17,14 @@ interface SelectedLine {
 }
 
 const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
-const ctx = canvas.getContext("2d")!;
+let ctx = canvas.getContext("2d")!;
+
+function resizeCanvas() {
+  canvas.width = canvas.parentElement!.clientWidth;
+  canvas.height = canvas.parentElement!.clientHeight;
+}
 export function gameLoop() {
+
   let { circles, springs } = initLineTestWorld({
     min: { x: 0, y: 0 },
     max: { x: canvas.width, y: canvas.height }
@@ -32,6 +38,11 @@ export function gameLoop() {
   let paused = false;
   let mouseDownPos: Vector2 = { x: 0, y: 0 };
   let mousePos: Vector2 = { x: 0, y: 0 };
+
+  resizeCanvas();
+  window.addEventListener("resize", () => {
+    setTimeout(() => { resizeCanvas(); }, 100)
+  });
 
   //select a circle on mouse down
   canvas.addEventListener("mousedown", e => {
@@ -121,10 +132,7 @@ export function gameLoop() {
     }
   });
 
-  const container: Box2 = {
-    min: { x: 0, y: 0 },
-    max: { x: canvas.width, y: canvas.height }
-  }
+
 
 
   function render() {
@@ -157,7 +165,7 @@ export function gameLoop() {
     }
   }
 
-  function simulate() {
+  function simulate(container: Box2) {
     for (const s of springs) {
       applyCircleCircleCollision(s.a, s.b, solveSpring(s));
     }
@@ -222,9 +230,13 @@ export function gameLoop() {
   }
 
   function iteration() {
+    const container: Box2 = {
+      min: { x: 0, y: 0 },
+      max: { x: canvas.width, y: canvas.height }
+    }
     // circle circle collisions:
     if (!paused) {
-      simulate();
+      simulate(container);
     }
     mouseMoveEvent();
     render();

@@ -20,8 +20,8 @@ export function solveSpring(s: Spring): CircleCircleCollisionResponse {
   const delta = d - Math.max(s.distance, a.radius + b.radius);
   const totalOffset = scale(ab, delta / Math.max(d, 0.001)); // avoid division by zero
 
-  const aOffset = scale(totalOffset, calcMassRatio(bMass, aMass));
-  const bOffset = scale(totalOffset, - calcMassRatio(aMass, bMass));
+  const aOffset = scale(totalOffset, calcMassRatio(aMass, aMass));
+  const bOffset = scale(totalOffset, -calcMassRatio(bMass, bMass));
 
   return {
     a: {
