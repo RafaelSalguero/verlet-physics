@@ -23,6 +23,9 @@ function resizeCanvas() {
   canvas.width = canvas.parentElement!.clientWidth;
   canvas.height = canvas.parentElement!.clientHeight;
 }
+
+console.log("hello there")
+
 export function gameLoop() {
 
   let { circles, springs } = initLineTestWorld({
